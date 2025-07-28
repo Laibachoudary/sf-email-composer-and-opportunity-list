@@ -1,0 +1,34 @@
+<template>
+    <div class="slds-box  slds-border_top">
+        <lightning-card title="Closed Won Opportunities" icon-name="standard:opportunity">
+            <lightning-button title="createNew" label="New" onclick={handleClickToNew}
+                slot="actions"></lightning-button>
+            <div class="slds-border_top "></div>
+            <template if:true={records}>
+                <div class="slds-grid slds-wrap slds-m-around_medium">
+                    <template for:each={records} for:item="rec">
+                        <div key={rec.id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-around_small">
+                            <p>
+                                <a data-id={rec.id} onclick={navigateToRecord}>{rec.fields.Name.value}</a>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <lightning-button-menu icon-name="utility:down" data-id={rec.id}
+                                    onselect={handleButtonClick} icon-size="small">
+                                    <lightning-menu-item value="edit" label="Edit"></lightning-menu-item>
+                                    <lightning-menu-item value="delete" label="Delete"></lightning-menu-item>
+                                </lightning-button-menu>
+                            </p>
+
+                            <p>Stage: {rec.fields.StageName.value}</p>
+                            <p>Amount: {rec.fields.Amount.value}</p>
+                            <p>Close Date: {rec.fields.CloseDate.value}</p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <div class="slds-border_top  slds-text-align_center">
+                <lightning-button title="Show All" label="View All" variant="base" onclick={handleViewAll}>
+                </lightning-button>
+            </div>
+        </lightning-card>
+    </div>
+</template>

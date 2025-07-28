@@ -1,0 +1,112 @@
+<aura:component controller="emailController" implements="force:hasRecordId,flexipage:availableForAllPageTypes"
+    access="global">
+
+    <!-- Attributes -->
+    <aura:attribute name="searchKey" type="String" />
+    <aura:attribute name="searchResults" type="List" />
+    <aura:attribute name="recipientIds" type="List" default="[]" />
+    <aura:attribute name="recipientNames" type="List" default="[]" />
+    <aura:attribute name="subject" type="String" />
+    <aura:attribute name="body" type="String" />
+
+    <div class="slds-card slds-p-around_medium">
+        <h1 class="slds-text-heading_medium">✉ Email</h1>
+
+        <!-- To Field -->
+        <div class="slds-form-element">
+            <label class="slds-form-element__label">To:</label>
+            <div class="slds-form-element__control slds-grid slds-wrap slds-align-top">
+                <!-- Pills -->
+                <aura:iteration items="{!v.recipientNames}" var="name" indexVar="index">
+                    <lightning:pill label="{!name}" name="{!index}" onremove="{!c.removeRecipient}" class="slds-m-right_xx-small slds-m-bottom_xx-small">
+                        <lightning:icon iconName="standard:contact" alternativeText="Recipient" />
+                    </lightning:pill>
+                    <p class="slds-text-body_small">{!v.recipientNames}</p>
+
+                </aura:iteration>
+
+                <!-- Search Input -->
+                <div style="min-width: 200px;">
+                    <lightning:input variant="label-hidden"
+                                     placeholder="Type to search..."
+                                     value="{!v.searchKey}"
+                                     onchange="{!c.handleKeyChange}" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Dropdown with search results -->
+        <aura:if isTrue="{!not(empty(v.searchResults))}">
+            <ul class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid">
+                <aura:iteration items="{!v.searchResults}" var="item">
+                    <li class="slds-dropdown__item" onclick="{!c.selectRecipient}" data-id="{!item.Id}" data-name="{!item.Name}">
+                        <a>
+                            <span class="slds-truncate">{!item.Name}</span>
+                        </a>
+                    </li>
+                </aura:iteration>
+            </ul>
+        </aura:if>
+
+        <!-- Subject and Body -->
+        <lightning:input name="Subject" required="true" value="{!v.subject}" label="Subject" />
+        <lightning:textarea label="Body" value="{!v.body}" />
+
+        <!-- Send Button -->
+        <lightning:button class="slds-m-top_medium" label="Send" onclick="{!c.SendEmail}" />
+    </div>
+</aura:component>
+
+<!--
+public with sharing class emailController {
+
+    @AuraEnabled
+    public static List<sObject> searchRecipients(String searchKey) {
+        List<sObject> results = new List<sObject>();
+    
+        // Search Contacts
+        List<Contact> contacts = [
+            SELECT Id, Name FROM Contact
+            WHERE Name LIKE :('%' + searchKey + '%') LIMIT 5
+        ];
+        results.addAll(contacts);
+
+        // Search Leads
+        List<Lead> leads = [
+            SELECT Id, Name FROM Lead
+            WHERE Name LIKE :('%' + searchKey + '%') LIMIT 5
+        ];
+        results.addAll(leads);
+
+        return results;
+    }
+
+    @AuraEnabled
+    public static void sendEmail(List<Id> recipientIds, String subject, String body) {
+        List<String> emailAddresses = new List<String>();
+
+        for (Id id : recipientIds) {
+            if (id.getSObjectType() == Contact.SObjectType) {
+             Contact c = [SELECT Email FROM Contact WHERE Id = :id LIMIT 1];
+             if (!String.isBlank(c.Email)) emailAddresses.add(c.Email);
+                } else if (id.getSObjectType() == Lead.SObjectType) {
+            Lead l = [SELECT Email FROM Lead WHERE Id = :id LIMIT 1];
+            if (!String.isBlank(l.Email)) emailAddresses.add(l.Email);
+             }
+       }
+
+    if (emailAddresses.isEmpty()) {
+        throw new AuraHandledException('No valid email addresses found.');
+    }
+
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setToAddresses(emailAddresses);
+    mail.setSubject(subject);
+    mail.setPlainTextBody(body);
+
+    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+}
+
+}
+
+-->

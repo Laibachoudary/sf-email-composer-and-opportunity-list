@@ -1,0 +1,16 @@
+<template>
+    <lightning-card title="All Closed Won Opportunities" icon-name="standard:opportunity">
+            <lightning-button title="createNew" label="New" onclick={handleClickToNew} slot="actions"></lightning-button>
+
+        <template if:true={records}>
+            <lightning-datatable
+            key-field="id"
+            data={records}
+            columns={columns}
+            hide-checkbox-column
+            onrowaction={handleRowAction}
+            ></lightning-datatable>
+        </template>
+    </lightning-card>
+</template>
+
